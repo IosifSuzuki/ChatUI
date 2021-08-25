@@ -1,0 +1,29 @@
+[
+  {
+    "content" : "Hi, can we meet at noot?",
+    "own" : false,
+    "sendedAt" : 651508421.68027496
+  },
+  {
+    "own" : true,
+    "content" : "Hi, of course, I'll wait you in the center city",
+    "sendedAt" : 651510921.68027496,
+    "readedAt" : 651510971.68028605
+  },
+  {
+    "content" : "Ok, see you",
+    "own" : false,
+    "sendedAt" : 651510971.68028605
+  },
+  {
+    "content" : "Lorem Ipson. la la la",
+    "own" : false,
+    "sendedAt" : 651550971.68028605
+  },
+  {
+    "content" : "Lorem Ipson. trala la la",
+    "own" : false,
+    "sendedAt" : 651550971.68028605
+  }
+]
+                                                                                                                                         
