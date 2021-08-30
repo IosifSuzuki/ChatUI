@@ -10,6 +10,7 @@ struct ChatView: View {
   @ObservedObject var viewModel: ChatViewModel
   @State private var inputText = ""
   @State private var textViewHeight: CGFloat = 0
+  @State private var scrollToBottom: Bool = true
 
   init() {
     viewModel = .init()
@@ -19,24 +20,33 @@ struct ChatView: View {
     NavigationView {
       VStack {
         ScrollView {
-          LazyVStack(spacing: 4) {
-            ForEach(viewModel.dataSource.indices, id: \.self) { outerIndex in
-              Section(header: SectionMessageView(section: viewModel.dataSource[outerIndex])) {
-                ForEach(viewModel.dataSource[outerIndex].messages.indices, id: \.self) { insideIndex in
-                  MessageView(message: viewModel.dataSource[outerIndex].messages[insideIndex])
-                    .id(UUID())
+          ScrollViewReader { proxy in
+            LazyVStack(alignment: .center, spacing: 4, pinnedViews: [.sectionHeaders]) {
+              ForEach(viewModel.dataSource.indices, id: \.self) { outerIndex in
+                Section(
+                  header: SectionMessageView(
+                    section: viewModel.dataSource[outerIndex]
+                  )
+                ) {
+                  ForEach(viewModel.dataSource[outerIndex].messages.indices, id: \.self) { innerIndex in
+                    MessageView(
+                      message: viewModel.dataSource[outerIndex].messages[innerIndex]
+                    )
+                    .id(viewModel.dataSource[outerIndex].messages[innerIndex].id)
+                  }
                 }
               }
             }
+            .padding()
           }
-          .padding()
         }
         InputTextView(
           text: $viewModel.inputText,
+          isEnableSendButton: viewModel.isEnabledSendButton,
           placeholder: "Text Message",
           sendTextAction: viewModel.createNewMessage(inputText:)
         )
-          .padding(.bottom, 10)
+        .padding(.bottom, 10)
       }
       .onAppear(perform: {
         viewModel.add(dataManager: dataManager)

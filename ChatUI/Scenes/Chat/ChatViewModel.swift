@@ -4,15 +4,24 @@
 //
 
 import Foundation
+import Combine
 
 final class ChatViewModel: ObservableObject {
   @Published var dataSource: [GroupMessage] = []
   private var messages: [Message] = []
+  private var currentIndexPage: Int = 1
+  private var pageMessages = 10
   @Published var inputText = ""
+  var isEnabledSendButton: Bool = false
+  var cancellable: Set<AnyCancellable> = []
+
+  init() {
+    setupObservers()
+  }
 
   func add(dataManager: DataManager) {
     messages = dataManager.messages
-    configureDataSource()
+    loadMore()
   }
 
   func createNewMessage(inputText: String) {
@@ -23,13 +32,12 @@ final class ChatViewModel: ObservableObject {
       readedAt: nil
     )
     messages.append(message)
-    configureDataSource()
+    loadMore()
     self.inputText = ""
   }
 
-  // MARK: - Private
-
-  private func configureDataSource() {
+  func loadMore() {
+    let countOfMessages = min(0, messages.count - pageMessages * currentIndexPage)
     let dictMessages: [Date: [Message]] = messages.reduce(into: [:]) { res, message in
       let components = Calendar.current.dateComponents([.year, .month, .day], from: message.sendedAt)
       let clearDate = Calendar.current.date(from: components)!
@@ -57,8 +65,17 @@ final class ChatViewModel: ObservableObject {
         messages: messages
       )
     }.sorted(by: { lhs, rhs in
-      return lhs.originDate.timeIntervalSinceReferenceDate < rhs.originDate.timeIntervalSinceReferenceDate
+      return lhs.originDate < rhs.originDate
     })
+    currentIndexPage += 1
   }
 
+  func setupObservers() {
+    $inputText
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] value in
+        self?.isEnabledSendButton = !value.isEmpty
+      }
+      .store(in: &cancellable)
+  }
 }

@@ -35,13 +35,18 @@ struct DynamicTextView: UIViewRepresentable {
   }
 
   func updateUIView(_ uiView: UIView, context: Context) {
+    if let height = context.coordinator.textView?.contentSize.height {
+      DispatchQueue.main.async {
+        self.height = height
+      }
+    }
     context.coordinator.textView?.text = text
   }
 
   func makeCoordinator() -> Coordinator {
     return Coordinator(dynamicTextField: self)
   }
-
+  
   class Coordinator: NSObject, UITextViewDelegate, NSLayoutManagerDelegate {
     var dynamicTextField: DynamicTextView
 
@@ -52,6 +57,11 @@ struct DynamicTextView: UIViewRepresentable {
     }
 
     // MARK: - UITextViewDelegate
+
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        textViewDidChangeSelection(textView)
+        return true
+    }
 
     func textViewDidChangeSelection(_ textView: UITextView) {
       self.textView?.textViewDidChangeSelection(textView)

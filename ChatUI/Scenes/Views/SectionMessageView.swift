@@ -15,6 +15,7 @@ struct SectionMessageView: View {
         .font(.headline)
     }
     .foregroundColor(.black)
+    .padding()
   }
 }
 
